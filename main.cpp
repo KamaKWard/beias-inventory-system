@@ -11,7 +11,7 @@ using namespace std;
 
 //User Input
 int MenuInput;
-char CaseChoice
+char CaseChoice;
 
 // item structure
 struct Item {
@@ -52,10 +52,10 @@ int main()
         cout<<"|[0] -- Exit"<<endl<<endl;
 
         // user input
-        cin>>userInput;
+        cin>>MenuInput;
 
         // switch statement for user input
-        switch (userInput)
+        switch (MenuInput)
         {
 
         // display inventory case
