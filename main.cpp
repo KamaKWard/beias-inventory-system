@@ -10,7 +10,8 @@
 using namespace std;
 
 //User Input
-int userInput;
+int MenuInput;
+char CaseChoice
 
 // item structure
 struct Item {
@@ -71,7 +72,12 @@ int main()
             }
             
             cout << "| ----------------------------------------------------------- |" << endl << endl;
-            break;
+            cout << "Continue to Menu? (y/n): ";
+            cin >> CaseChoice;
+            if(CaseChoice=='y'){
+                cout<<"\n";break;}
+            else{
+                return 0;}
 
         // adding item to inventory (placeholder)
         case 2:
