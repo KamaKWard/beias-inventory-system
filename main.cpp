@@ -1,7 +1,7 @@
 
 // include statements
 #include <iostream>
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include <string>
 #include <iomanip>
@@ -9,8 +9,7 @@
 //namespace std
 using namespace std;
 
-// variables
-bool programEnd = false;
+//User Input
 int userInput;
 
 // item structure
@@ -20,7 +19,7 @@ struct Item {
 };
 
 // map to link itemCode with Item
-unordered_map<string, Item> inventory;
+map<string, Item> inventory;
 
 // placeholder function to quick sort
 void quickSort() {
@@ -42,7 +41,7 @@ int main()
     inventory["04"] = {"LongSleeveShirtGigaBooBooWahWah", 11};
 
     // while loop that encompasses entire program
-    while (programEnd != true) {
+    while (true) {
         cout<<"----------------------------"<<endl<<"|        BEIAS Menu        |"<<endl<<"----------------------------"<<endl;
         cout<<"|[1] -- Check Current Inventory"<<endl;
         cout<<"|[2] -- Add Item To Inventory"<<endl;
@@ -52,7 +51,7 @@ int main()
         // user input
         cin>>userInput;
 
-        // switch statement for userinput
+        // switch statement for user input
         switch (userInput)
         {
 
@@ -64,7 +63,7 @@ int main()
                  << setw(10) << "[Quantity]" << endl;
             cout << "| ----------------------------------------------------------- |" << endl;
             
-            /* const, auto and & are all keywords to alter how the for loop goes thru the data structure, item : inventory is the range in which it will function */
+            /* const, auto, and & are all keywords to alter how the for loop goes thru the data structure, item : inventory is the range in which it will function */
             for (const auto &item : inventory) {
                 cout << left << setw(8) << item.first
                     << setw(40) << item.second.itemName
@@ -87,7 +86,7 @@ int main()
         // exit case
         case 0:
             cout<<endl<<"[ Exiting BEIAS.. | Thank you for your usage! ] "<<endl;
-            programEnd = true;
+            return 0;
             break;
 
         // the Default Case
