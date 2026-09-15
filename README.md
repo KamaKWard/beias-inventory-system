@@ -4,3 +4,6 @@ hello everyone its me kama k ward, the owner of this beautiful github repository
 
 
 this repository's purpose is to track versions and commits as progress is made on the project for documentation :)
+
+"I hate this place"
+- LOCHUNGSS
