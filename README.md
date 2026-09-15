@@ -7,3 +7,6 @@ this repository's purpose is to track versions and commits as progress is made o
 
 "I hate this place"
 - LOCHUNGSS
+
+"Like and subscribe for a free cookie!"
+- 8acos_
