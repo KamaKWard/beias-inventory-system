@@ -35,12 +35,14 @@ void binarySearch() {
 // main method
 int main()
 {   
-    // inserting preset 
-    inventory["01"] = {"Uniform", 27};
-    inventory["02"] = {"Pants", 40};
-    inventory["03"] = {"ID Lace", 30};
-    inventory["04"] = {"LongSleeveShirtGigaBooBooWahWah", 11};
-
+    //hashmap, [ItemCode, Name, quantity]
+    inventory= {
+    { 1, {"Uniform", 27}},
+    { 2, {"Pants", 40}},
+    { 3, {"ID Lace", 30}},
+    { 4, {"LongSleeveShirtGigaBooBooWahWah", 11}},
+    { 5, {"PLUSH OF DOOM", 67}}
+    };
     // while loop that encompasses entire program
     while (true) {
         cout<<"----------------------------"<<endl<<"|        BEIAS Menu        |"<<endl<<"----------------------------"<<endl;
