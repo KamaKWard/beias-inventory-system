@@ -20,7 +20,7 @@ struct Item {
 };
 
 // map to link itemCode with Item
-map<string, Item> inventory;
+map<int, Item> inventory;
 
 // placeholder function to quick sort
 void quickSort() {
