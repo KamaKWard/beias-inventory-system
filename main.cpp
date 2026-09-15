@@ -64,6 +64,7 @@ int main()
                  << setw(10) << "[Quantity]" << endl;
             cout << "| ----------------------------------------------------------- |" << endl;
             
+            /* const, auto and & are all keywords to alter how the for loop goes thru the data structure, item : inventory is the range in which it will function */
             for (const auto &item : inventory) {
                 cout << left << setw(8) << item.first
                     << setw(40) << item.second.itemName
