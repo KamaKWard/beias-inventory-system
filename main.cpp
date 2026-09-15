@@ -1,4 +1,3 @@
-
 // include statements
 #include <iostream>
 #include <map>
@@ -9,9 +8,9 @@
 //namespace std
 using namespace std;
 
-//User Input
+//value for user input
 int MenuInput;
-char CaseChoice;
+int CaseChoice;
 
 // item structure
 struct Item {
@@ -35,76 +34,92 @@ void binarySearch() {
 // main method
 int main()
 {   
-    //hashmap, [ItemCode, Name, quantity]
-    inventory= {
+    //HashMap Index
+    inventory = {
     { 1, {"Uniform", 27}},
     { 2, {"Pants", 40}},
     { 3, {"ID Lace", 30}},
     { 4, {"LongSleeveShirtGigaBooBooWahWah", 11}},
     { 5, {"PLUSH OF DOOM", 67}}
     };
+
     // while loop that encompasses entire program
     while (true) {
         cout<<"----------------------------"<<endl<<"|        BEIAS Menu        |"<<endl<<"----------------------------"<<endl;
         cout<<"|[1] -- Check Current Inventory"<<endl;
         cout<<"|[2] -- Add Item To Inventory"<<endl;
         cout<<"|[3] -- Search For An Item Within Inventory"<<endl;
-        cout<<"|[0] -- Exit"<<endl<<endl;
-
+        cout<<"|[0] -- Exit"<<endl;
+        cout<<"Select: ";
         // user input
         cin>>MenuInput;
-
+        
         // switch statement for user input
         switch (MenuInput)
         {
-
-        // display inventory case
-        case 1:
+        
+        case 1: // display inventory case
             cout << endl << "| ------------------ | Current Inventory | ------------------ |" << endl;
-            cout << left << setw(8)  << "[Code]"
+            cout << left << setw(8)<< "[Code]"
                  << setw(40) << "[Item Name]"
                  << setw(10) << "[Quantity]" << endl;
             cout << "| ----------------------------------------------------------- |" << endl;
             
-            /* const, auto, and & are all keywords to alter how the for loop goes thru the data structure, item : inventory is the range in which it will function */
             for (const auto &item : inventory) {
-                cout << left << setw(8) << item.first
+                cout << left<<"  0"<<item.first<<setw(8)<<" "
                     << setw(40) << item.second.itemName
                     << setw(10) << item.second.quantity << endl;
             }
             
-            cout << "| ----------------------------------------------------------- |" << endl << endl;
-            cout << "Continue to Menu? (y/n): ";
-            cin >> CaseChoice;
-            if(CaseChoice=='y'){
-                cout<<"\n";break;}
-            else{
-                return 0;}
-
-        // adding item to inventory (placeholder)
-        case 2:
+            cout << "| ----------------------------------------------------------- |" << endl;
+                while(CaseChoice!=4){
+                cout<<"|[1] -- Sort By Item Code"<<endl;
+                cout<<"|[2] -- Sort By Name"<<endl;
+                cout<<"|[3] -- Sort By Quantity"<<endl;
+                cout<<"|[4] -- Back To Main Menu"<<endl;
+                cout<<"|[0] -- Exit Program"<<endl;
+                cout<<"Choice: ";
+                cin>> CaseChoice;
+                    switch(CaseChoice){
+                    case 1://sort by Item code
+                    break;
+                    
+                    case 2://sort by Name
+                    break;
+                    
+                    case 3://sort by Quantity
+                    break;
+                    
+                    case 4://Back to Main Menu
+                    break;
+                    
+                    case 0://Exit program
+                    return 0;
+                    }
+                }
+        
+        case 2: // adding item to inventory (placeholder)
             cout << "";
             break;
 
-        // searching for a certain item in inventory (placeholder)
-        case 3:
+        
+        case 3: // searching for a certain item in inventory (placeholder)
             cout << "";
             break;
 
-        // exit case
-        case 0:
+        
+        case 0: // exit case
             cout<<endl<<"[ Exiting BEIAS.. | Thank you for your usage! ] "<<endl;
             return 0;
             break;
 
-        // the Default Case
-        default:
+        
+        default: // the Default Case
             break;
         }
 
 
     } 
 
-    // return 0
     return 0;
 }
