@@ -1,37 +1,47 @@
 
+// include statements
 #include <iostream>
 #include <unordered_map>
 #include <vector>
 #include <string>
 #include <iomanip>
 
+//namespace std
 using namespace std;
 
+// variables
 bool programEnd = false;
 int userInput;
 
+// item structure
 struct Item {
     string itemName;
     int quantity;
 };
 
+// map to link itemCode with Item
 unordered_map<string, Item> inventory;
 
+// placeholder function to quick sort
 void quickSort() {
     return;
 }
 
+// placeholder function to search
 void binarySearch() {
     return;
 }
 
+// main method
 int main()
-{
+{   
+    // inserting preset 
     inventory["01"] = {"Uniform", 27};
     inventory["02"] = {"Pants", 40};
     inventory["03"] = {"ID Lace", 30};
     inventory["04"] = {"LongSleeveShirtGigaBooBooWahWah", 11};
 
+    // while loop that encompasses entire program
     while (programEnd != true) {
         cout<<"----------------------------"<<endl<<"|        BEIAS Menu        |"<<endl<<"----------------------------"<<endl;
         cout<<"|[1] -- Check Current Inventory"<<endl;
@@ -39,10 +49,14 @@ int main()
         cout<<"|[3] -- Search For An Item Within Inventory"<<endl;
         cout<<"|[0] -- Exit"<<endl<<endl;
 
+        // user input
         cin>>userInput;
 
+        // switch statement for userinput
         switch (userInput)
         {
+
+        // display inventory case
         case 1:
             cout << endl << "| ------------------ | Current Inventory | ------------------ |" << endl;
             cout << left << setw(8)  << "[Code]"
@@ -59,26 +73,30 @@ int main()
             cout << "| ----------------------------------------------------------- |" << endl << endl;
             break;
 
+        // adding item to inventory (placeholder)
         case 2:
             cout << "";
             break;
-        
+
+        // searching for a certain item in inventory (placeholder)
         case 3:
             cout << "";
             break;
-        
+
+        // exit case
         case 0:
             cout<<endl<<"[ Exiting BEIAS.. | Thank you for your usage! ] "<<endl;
             programEnd = true;
             break;
-        
+
+        // the Default Case
         default:
             break;
         }
 
 
     } 
-    
 
+    // return 0
     return 0;
 }
