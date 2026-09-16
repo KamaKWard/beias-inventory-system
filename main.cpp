@@ -47,8 +47,53 @@ void quickSort() {
 }
 
 // placeholder function to search
+//I think this is good
 void binarySearch() {
-    return;
+    // Make a temporary vector from the inventory map
+    vector<Entry> arr = toEntries(inventory);
+    int size = arr.size();
+    int target;
+    cout << endl;
+    cout << "[Enter Item Code to search]: ";
+    cin >> target;
+    if (cin.fail()) { // please optimize later
+        cin.clear();// Clear the error state
+        cin.ignore(1000, '\n');// Remove invalid input
+    cout << endl;
+        cout << "[Invalid Code] (Please Retry With A Valid ID)" << endl<<endl;
+        return;
+    }
+    int left = 0;
+    int right = size - 1;
+    int resultIndex = -1;
+    while (left <= right) { //shoutout to old binary code
+        int mid = left + (right - left) / 2;
+        // Search using the Item Code
+        if (arr[mid].first == target) {
+            resultIndex = mid;
+            break;
+        }
+        if (arr[mid].first < target) {
+            left = mid + 1;
+        }
+        else {
+            right = mid - 1;
+        }
+    }
+    // Display result
+    if (resultIndex != -1) {
+        cout << endl;
+        cout << "[Item Found]" << endl;
+        cout << "Item Code : " << arr[resultIndex].first << endl;
+        cout << "Item Name : " << arr[resultIndex].second.itemName << endl;
+        cout << "Quantity  : " << arr[resultIndex].second.quantity << endl<<endl;
+
+    }
+    else {
+        cout << endl;
+        cout << "[Item Code " << target
+             << " not found in the inventory.]" << endl<<endl;
+    }
 }
 
 //---------------------------------------------------------------------------------------------------------
@@ -155,8 +200,9 @@ int main()
             insertItem();
             break;
         
+        // input access to binarysearch
         case 3: // searching for a certain item in inventory (placeholder)
-            cout << "";
+            binarySearch();
             break;
 
         case 4: // delivery queue checking and stuff (placeholder)
