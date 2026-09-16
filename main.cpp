@@ -4,13 +4,7 @@
 #include <vector>
 #include <string>
 #include <iomanip>
-
-//namespace std
 using namespace std;
-
-//value for user input
-int MenuInput;
-int CaseChoice;
 
 // item structure
 struct Item {
@@ -30,10 +24,56 @@ void quickSort() {
 void binarySearch() {
     return;
 }
-
+//Function that displays current inventory
+void inventoryDisplay(){
+     cout << endl << "| ------------------ | Current Inventory | ------------------ |" << endl;
+            cout << left << setw(8)<< "[Code]"
+                 << setw(40) << "[Item Name]"
+                 << setw(10) << "[Quantity]" << endl;
+            cout << "| ----------------------------------------------------------- |" << endl;
+            
+            for (const auto &item : inventory) {
+                cout << left<<"  0"<<item.first<<setw(8)<<" "
+                    << setw(40) << item.second.itemName
+                    << setw(10) << item.second.quantity << endl;
+            }
+            
+            cout << "| ----------------------------------------------------------- |" << endl;
+}
+//Function that displays a menu for available sorts upon opening Inventory
+void SortMenu(){
+    int CaseChoice;
+    while(true){
+        cout<<"|[1] -- Sort By Item Code"<<endl;
+        cout<<"|[2] -- Sort By Name"<<endl;
+        cout<<"|[3] -- Sort By Quantity"<<endl;
+        cout<<"|[4] -- Back To Main Menu"<<endl;
+        cout<<"|[0] -- Exit Program"<<endl;
+        cout<<"Choice: ";
+        cin>> CaseChoice;
+        switch(CaseChoice){
+            case 1://sort by Item code
+            cout<<endl;break;
+                    
+            case 2://sort by Name
+            cout<<endl;break;
+                    
+            case 3://sort by Quantity
+            cout<<endl;break;
+                    
+            case 4://Back to Main Menu
+            return;
+                    
+            case 0://Exit program
+            exit(0);
+        }
+    }
+}
 // main method
 int main()
 {   
+    int MenuInput;
+    
     //HashMap Index
     inventory = {
     { 1, {"Uniform", 27}},
@@ -54,65 +94,28 @@ int main()
         // user input
         cin>>MenuInput;
         
-        // switch statement for user input
+        // switch statement for userinput
         switch (MenuInput)
         {
         
         case 1: // display inventory case
-            cout << endl << "| ------------------ | Current Inventory | ------------------ |" << endl;
-            cout << left << setw(8)<< "[Code]"
-                 << setw(40) << "[Item Name]"
-                 << setw(10) << "[Quantity]" << endl;
-            cout << "| ----------------------------------------------------------- |" << endl;
-            
-            for (const auto &item : inventory) {
-                cout << left<<"  0"<<item.first<<setw(8)<<" "
-                    << setw(40) << item.second.itemName
-                    << setw(10) << item.second.quantity << endl;
-            }
-            
-            cout << "| ----------------------------------------------------------- |" << endl;
-                while(CaseChoice!=4){
-                cout<<"|[1] -- Sort By Item Code"<<endl;
-                cout<<"|[2] -- Sort By Name"<<endl;
-                cout<<"|[3] -- Sort By Quantity"<<endl;
-                cout<<"|[4] -- Back To Main Menu"<<endl;
-                cout<<"|[0] -- Exit Program"<<endl;
-                cout<<"Choice: ";
-                cin>> CaseChoice;
-                    switch(CaseChoice){
-                    case 1://sort by Item code
-                    break;
-                    
-                    case 2://sort by Name
-                    break;
-                    
-                    case 3://sort by Quantity
-                    break;
-                    
-                    case 4://Back to Main Menu
-                    break;
-                    
-                    case 0://Exit program
-                    return 0;
-                    }
-                }
+            inventoryDisplay();
+            SortMenu();
+            break;
+           
         
         case 2: // adding item to inventory (placeholder)
             cout << "";
             break;
-
         
         case 3: // searching for a certain item in inventory (placeholder)
             cout << "";
             break;
-
         
         case 0: // exit case
             cout<<endl<<"[ Exiting BEIAS.. | Thank you for your usage! ] "<<endl;
             return 0;
             break;
-
         
         default: // the Default Case
             break;
@@ -121,5 +124,7 @@ int main()
 
     } 
 
+    return 0;
+}
     return 0;
 }
