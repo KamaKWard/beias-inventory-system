@@ -5,6 +5,31 @@
 #include <string>
 #include <iomanip>
 using namespace std;
+//-------------------------------------------------------------
+//Text Style Implementation
+#define RESET   "\033[0m"
+#define BOLD    "\033[1m"
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define BLUE    "\033[34m"
+#define BG_GRAY "\033[47m"
+#define BLACK   "\033[30m"
+#define GREEN   "\033[32m"
+//-------------------------------------------------------------
+#ifdef _WIN32 //activates ANSI codes if the unit doesnt natively have it activated
+#include <windows.h>
+void enableANSI() {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(hOut, dwMode);
+}
+#else
+void enableANSI() {} // Not needed on Linux/macOS
+#endif
+//-------------------------------------------------------------
+
 
 // DATA STRUCTURES for Item and Package -Kama
 // item structure
@@ -90,9 +115,8 @@ void binarySearch() {
 
     }
     else {
-        cout << endl;
-        cout << "[Item Code " << target
-             << " not found in the inventory.]" << endl<<endl;
+        cout <<RED<< "[Item Code " << target
+             << " not found in the inventory.]" <<RESET<< endl<<endl;
     }
 }
 
@@ -100,22 +124,22 @@ void binarySearch() {
 //Displays
 void printRow(int code, const Item&item) //dictates how items are listed
 { 
-    cout << left<<"\033[1G"<<"  0"<<code
-        << "\033[12G" << item.itemName
-        << "\033[52G" << item.quantity << endl;
+    cout << left<<"\033[1G"<<BLUE<<"  0"<<code<<RESET
+        << "\033[12G" <<item.itemName<<RESET
+        << "\033[52G" <<BLUE<< item.quantity << RESET << endl;
 }
 
 void printHeader() //header to be used on later menus
 {
-        cout << endl << "| ------------------ | Current Inventory | ------------------ |" << endl;
-        cout << left <<"\033[1G"<< "[Code]"<<"\033[10G"<< "[Item Name]"<<"\033[48G"<< "[Quantity]" << endl;
-        cout << "| ----------------------------------------------------------- |" << endl;
+        cout << endl << BOLD<< "| ------------------"<<GREEN<<"| Current Inventory | "<<RESET<<"------------------ |"<< endl;
+        cout << left <<"\033[1G"<< "[Code]"<<"\033[10G"<< "[Item Name]"<<"\033[48G"<< "[Quantity]"<< endl;
+        cout << "| ----------------------------------------------------------- |"<<RESET<< endl;
 }
 void DefaultDisplay() //Display that shows when no sorting option is picked
 {
             printHeader();
             for (const auto &entry : inventory) printRow(entry.first, entry.second);
-            cout << "| ----------------------------------------------------------- |" << endl;
+            cout << BOLD <<"| ----------------------------------------------------------- |"<< RESET << endl;
 }
 //--------------------------------------------------------------------------------------------------------
 
@@ -136,7 +160,6 @@ void insertItem() {
     cin>>tempQuantity;
 
     inventory[tempItemCode] = {tempItemName, tempQuantity};
-
 }
 
 //Function that displays a menu for available sorts upon opening Inventory
@@ -161,9 +184,10 @@ void SortMenu(){
             cout<<endl;break;
                     
             case 4://Back to Main Menu
-            return;
+            cout<<endl;return;
                     
             case 0://Exit program
+            cout<<endl<<"[ Exiting BEIAS.. | Thank you for your usage! ] "<<endl;
             exit(0);
         }
     }
@@ -175,7 +199,7 @@ int main()
 
     // while loop that encompasses entire program
         while (true) {
-        cout<<"----------------------------"<<endl<<"|        BEIAS Menu        |"<<endl<<"----------------------------"<<endl;
+        cout<<BOLD<<"----------------------------"<<endl<<GREEN<<"|        BEIAS Menu        |"<<RESET<<endl<<"----------------------------"<<endl;
         cout<<"|[1] -- Check Current Inventory"<<endl;
         cout<<"|[2] -- Add Item To Inventory"<<endl;
         cout<<"|[3] -- Search For An Item Within Inventory"<<endl;
@@ -184,8 +208,7 @@ int main()
         cout<<"|[0] -- Exit"<<endl;
         cout<<"Select: ";
         // user input
-        cin>>MenuInput;
-        
+        cin>>MenuInput;     
         // switch statement for userinput
         switch (MenuInput)
         {
@@ -195,35 +218,27 @@ int main()
             SortMenu();
             break;
            
-        
         case 2: // adding item to inventory (placeholder)
             insertItem();
             break;
-        
+            
         // input access to binarysearch
         case 3: // searching for a certain item in inventory (placeholder)
             binarySearch();
             break;
-
         case 4: // delivery queue checking and stuff (placeholder)
             cout << "";
             break;
-
         case 5: // managing package returns and deliveries!! (placeholder)
             cout << "";
             break;
-        
         case 0: // exit case
             cout<<endl<<"[ Exiting BEIAS.. | Thank you for your usage! ] "<<endl;
             return 0;
             break;
-        
         default: // the Default Case
             break;
         }
-
-
     } 
-
     return 0;
 }
