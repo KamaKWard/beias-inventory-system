@@ -6,6 +6,7 @@
 #include <iomanip>
 using namespace std;
 
+//THE ITEM DATA IS HERE -8a
 // item structure
 struct Item {
     string itemName;
@@ -13,8 +14,16 @@ struct Item {
 };
 
 // map to link itemCode with Item
-map<int, Item> inventory;
+//HashMap Index moved out of int main
+map<int, Item> inventory = {
+    {1, {"Uniform", 27}},
+    {2, {"Pants", 40}},
+    {3, {"ID Lace", 30}},
+    {4, {"LongSleeveShirtGigaBooBooWahWah", 11}},
+    {5, {"PLUSH OF DOOM", 67}}
+};
 
+//FUNCTIONS BELOW - 8a
 // placeholder function to quick sort
 void quickSort() {
     return;
@@ -73,15 +82,6 @@ void SortMenu(){
 int main()
 {   
     int MenuInput;
-    
-    //HashMap Index
-    inventory = {
-    { 1, {"Uniform", 27}},
-    { 2, {"Pants", 40}},
-    { 3, {"ID Lace", 30}},
-    { 4, {"LongSleeveShirtGigaBooBooWahWah", 11}},
-    { 5, {"PLUSH OF DOOM", 67}}
-    };
 
     // while loop that encompasses entire program
     while (true) {
