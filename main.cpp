@@ -55,21 +55,15 @@ void binarySearch() {
 //Displays
 void printRow(int code, const Item&item) //dictates how items are listed
 { 
-    if (code >= 10) {
-            cout << left<<code<<setw(8)<<" "
-                << setw(40) << item.itemName
-                << setw(10) << item.quantity << endl;
-        } else {
-            cout << left<<"0"<<code<<setw(8)<<" "
-                << setw(40) << item.itemName
-                << setw(10) << item.quantity << endl;
-        }
+    cout << left<<"\033[1G"<<"  0"<<code
+        << "\033[12G" << item.itemName
+        << "\033[52G" << item.quantity << endl;
 }
 
 void printHeader() //header to be used on later menus
 {
         cout << endl << "| ------------------ | Current Inventory | ------------------ |" << endl;
-        cout << left << setw(8)<< "[Code]"<< setw(40) << "[Item Name]"<< setw(10) << "[Quantity]" << endl;
+        cout << left <<"\033[1G"<< "[Code]"<<"\033[10G"<< "[Item Name]"<<"\033[48G"<< "[Quantity]" << endl;
         cout << "| ----------------------------------------------------------- |" << endl;
 }
 void DefaultDisplay() //Display that shows when no sorting option is picked
