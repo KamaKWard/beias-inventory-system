@@ -15,6 +15,7 @@ struct Item {
 
 // map to link itemCode with Item
 //HashMap Index moved out of int main
+//this contains the true values of the inventory
 map<int, Item> inventory = {
     {1, {"Uniform", 27}},
     {2, {"Pants", 40}},
@@ -22,6 +23,16 @@ map<int, Item> inventory = {
     {4, {"LongSleeveShirtGigaBooBooWahWah", 11}},
     {5, {"PLUSH OF DOOM", 67}}
 };
+
+//makes Entry a readable name so we can just say 
+//vector<Entry> without expanding 
+//it into vector<pair<int,Item>>
+using Entry = pair<int, Item>;
+
+//makes a snapshot of the map into a vector
+vector<Entry> toEntries(const map<int, Item> &m){
+    return vector<Entry>(m.begin(),m.end());
+}
 
 //FUNCTIONS BELOW - 8a
 // placeholder function to quick sort
@@ -33,22 +44,30 @@ void quickSort() {
 void binarySearch() {
     return;
 }
-//Function that displays current inventory
-void inventoryDisplay(){
-     cout << endl << "| ------------------ | Current Inventory | ------------------ |" << endl;
-            cout << left << setw(8)<< "[Code]"
-                 << setw(40) << "[Item Name]"
-                 << setw(10) << "[Quantity]" << endl;
-            cout << "| ----------------------------------------------------------- |" << endl;
-            
-            for (const auto &item : inventory) {
-                cout << left<<"  0"<<item.first<<setw(8)<<" "
-                    << setw(40) << item.second.itemName
-                    << setw(10) << item.second.quantity << endl;
-            }
-            
+
+//---------------------------------------------------------------------------------------------------------
+//Displays
+void printRow(int code, const Item&item) //dictates how items are listed
+{ 
+    cout << left<<"  0"<<code<<setw(8)<<" "
+    << setw(40) << item.itemName
+    << setw(10) << item.quantity << endl;
+}
+
+void printHeader() //header to be used on later menus
+{
+        cout << endl << "| ------------------ | Current Inventory | ------------------ |" << endl;
+    cout << left << setw(8)<< "[Code]"<< setw(40) << "[Item Name]"<< setw(10) << "[Quantity]" << endl;
             cout << "| ----------------------------------------------------------- |" << endl;
 }
+void DefaultDisplay() //Display that shows when no sorting option is picked
+{
+            printHeader();
+            for (const auto &entry : inventory) printRow(entry.first, entry.second);
+            cout << "| ----------------------------------------------------------- |" << endl;
+}
+//--------------------------------------------------------------------------------------------------------
+
 //Function that displays a menu for available sorts upon opening Inventory
 void SortMenu(){
     int CaseChoice;
@@ -97,21 +116,16 @@ int main()
         // switch statement for userinput
         switch (MenuInput)
         {
-        
         case 1: // display inventory case
-            inventoryDisplay();
+            DefaultDisplay();
             SortMenu();
             break;
-           
-        
         case 2: // adding item to inventory (placeholder)
             cout << "";
             break;
-        
         case 3: // searching for a certain item in inventory (placeholder)
             cout << "";
             break;
-        
         case 0: // exit case
             cout<<endl<<"[ Exiting BEIAS.. | Thank you for your usage! ] "<<endl;
             return 0;
