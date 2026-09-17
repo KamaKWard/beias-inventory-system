@@ -5,48 +5,15 @@
 #include <string>
 #include <iomanip>
 using namespace std;
-//-------------------------------------------------------------
-//Text Style Implementation
-#define RESET   "\033[0m"
-#define BOLD    "\033[1m"
-#define RED     "\033[31m"
-#define GREEN   "\033[32m"
-#define BLUE    "\033[34m"
-#define BG_GRAY "\033[47m"
-#define BLACK   "\033[30m"
-#define GREEN   "\033[32m"
-//-------------------------------------------------------------
-#ifdef _WIN32 //activates ANSI codes if the unit doesnt natively have it activated
-#include <windows.h>
-void enableANSI() {
-    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    DWORD dwMode = 0;
-    GetConsoleMode(hOut, &dwMode);
-    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-    SetConsoleMode(hOut, dwMode);
-}
-#else
-void enableANSI() {} // Not needed on Linux/macOS
-#endif
-//-------------------------------------------------------------
-
-
-// DATA STRUCTURES for Item and Package -Kama
+//THE ITEM DATA IS HERE -8a
 // item structure
 struct Item {
     string itemName;
     int quantity;
 };
-
-//package structure
-struct Package {
-    int packageID;
-    vector<Item> items;
-};
-
-/* map to link itemCode with Item
-HashMap Index moved out of int main
-this contains the true values of the inventory */
+// map to link itemCode with Item
+//HashMap Index moved out of int main
+//this contains the true values of the inventory
 map<int, Item> inventory = {
     {1, {"Uniform", 27}},
     {2, {"Pants", 40}},
@@ -54,114 +21,90 @@ map<int, Item> inventory = {
     {4, {"LongSleeveShirtGigaBooBooWahWah", 11}},
     {5, {"PLUSH OF DOOM", 67}}
 };
-
-/* makes Entry a readable name so we can just say 
-vector<Entry> without expanding 
-it into vector<pair<int,Item>> */
+//makes Entry a readable name so we can just say
+//vector<Entry> without expanding
+//it into vector<pair<int,Item>>
 using Entry = pair<int, Item>;
-
 //makes a snapshot of the map into a vector
 vector<Entry> toEntries(const map<int, Item> &m){
     return vector<Entry>(m.begin(),m.end());
 }
-
 //FUNCTIONS BELOW - 8a
 // placeholder function to quick sort
-void quickSort() {
+void quickSort(vector<Entry>& items, int low, int high, int sortType) {
+    if (low >= high)
+        return;
+ 
+    // Choose the last item as pivot
+    Entry pivot = items[high];
+ 
+    int i = low - 1;
+ 
+    for (int j = low; j < high; j++)
+    {
+        bool shouldSwap = false;
+ 
+        // Sort by Item Code
+        if (sortType == 1)
+        {
+            shouldSwap = items[j].first < pivot.first;
+        }
+ 
+        // Sort by Item Name
+        else if (sortType == 2)
+        {
+            shouldSwap = items[j].second.itemName < pivot.second.itemName;
+        }
+ 
+        // Sort by Quantity
+        else if (sortType == 3)
+        {
+            shouldSwap = items[j].second.quantity < pivot.second.quantity;
+        }
+ 
+        if (shouldSwap)
+        {
+            i++;
+            swap(items[i], items[j]);
+        }
+    }
+ 
+    // Put pivot in correct position
+    swap(items[i + 1], items[high]);
+ 
+    int pivotIndex = i + 1;
+ 
+    // Sort left side
+    quickSort(items, low, pivotIndex - 1, sortType);
+ 
+    // Sort right side
+    quickSort(items, pivotIndex + 1, high, sortType);
+}
+// placeholder function to search
+void binarySearch() {
     return;
 }
-
-// placeholder function to search
-//I think this is good
-void binarySearch() {
-    // Make a temporary vector from the inventory map
-    vector<Entry> arr = toEntries(inventory);
-    int size = arr.size();
-    int target;
-    cout << endl;
-    cout << "[Enter Item Code to search]: ";
-    cin >> target;
-    if (cin.fail()) { // please optimize later
-        cin.clear();// Clear the error state
-        cin.ignore(1000, '\n');// Remove invalid input
-    cout << endl;
-        cout << "[Invalid Code] (Please Retry With A Valid ID)" << endl<<endl;
-        return;
-    }
-    int left = 0;
-    int right = size - 1;
-    int resultIndex = -1;
-    while (left <= right) { //shoutout to old binary code
-        int mid = left + (right - left) / 2;
-        // Search using the Item Code
-        if (arr[mid].first == target) {
-            resultIndex = mid;
-            break;
-        }
-        if (arr[mid].first < target) {
-            left = mid + 1;
-        }
-        else {
-            right = mid - 1;
-        }
-    }
-    // Display result
-    if (resultIndex != -1) {
-        cout << endl;
-        cout << "[Item Found]" << endl;
-        cout << "Item Code : " << arr[resultIndex].first << endl;
-        cout << "Item Name : " << arr[resultIndex].second.itemName << endl;
-        cout << "Quantity  : " << arr[resultIndex].second.quantity << endl<<endl;
-
-    }
-    else {
-        cout <<RED<< "[Item Code " << target
-             << " not found in the inventory.]" <<RESET<< endl<<endl;
-    }
-}
-
 //---------------------------------------------------------------------------------------------------------
 //Displays
 void printRow(int code, const Item&item) //dictates how items are listed
-{ 
-    cout << left<<"\033[1G"<<BLUE<<"  0"<<code<<RESET
-        << "\033[12G" <<item.itemName<<RESET
-        << "\033[52G" <<BLUE<< item.quantity << RESET << endl;
+{
+    cout << left<<"  0"<<code<<setw(8)<<" "
+<< setw(40) << item.itemName
+<< setw(10) << item.quantity << endl;
 }
-
 void printHeader() //header to be used on later menus
 {
-        cout << endl << BOLD<< "| ------------------"<<GREEN<<"| Current Inventory | "<<RESET<<"------------------ |"<< endl;
-        cout << left <<"\033[1G"<< "[Code]"<<"\033[10G"<< "[Item Name]"<<"\033[48G"<< "[Quantity]"<< endl;
-        cout << "| ----------------------------------------------------------- |"<<RESET<< endl;
+        cout << endl << "| ------------------ | Current Inventory | ------------------ |" << endl;
+    cout << left << setw(8)<< "[Code]"<< setw(40) << "[Item Name]"<< setw(10) << "[Quantity]" << endl;
+            cout << "| ----------------------------------------------------------- |" << endl;
 }
 void DefaultDisplay() //Display that shows when no sorting option is picked
 {
             printHeader();
             for (const auto &entry : inventory) printRow(entry.first, entry.second);
-            cout << BOLD <<"| ----------------------------------------------------------- |"<< RESET << endl;
+            cout << "| ----------------------------------------------------------- |" << endl;
 }
 //--------------------------------------------------------------------------------------------------------
-
-//function for inserting items into the inventory map
-void insertItem() {
-    int tempItemCode;
-    string tempItemName;
-    int tempQuantity;
-
-    cout<<endl<<"[Please input the item code, name of item and quantity.]"<<endl<<"[Item Code (0-99)]: ";
-    cin>>tempItemCode;
-    cin.ignore();
-    
-    cout<<endl<<"Item Name: ";
-    getline(cin, tempItemName);
-
-    cout<<endl<<"Quantity: ";
-    cin>>tempQuantity;
-
-    inventory[tempItemCode] = {tempItemName, tempQuantity};
-}
-
 //Function that displays a menu for available sorts upon opening Inventory
 void SortMenu(){
     int CaseChoice;
@@ -175,19 +118,48 @@ void SortMenu(){
         cin>> CaseChoice;
         switch(CaseChoice){
             case 1://sort by Item code
-            cout<<endl;break;
-                    
+            {
+                vector<Entry> items = toEntries(inventory);
+ 
+                quickSort(items, 0, items.size() - 1, 1);
+ 
+                printHeader();
+ 
+                for (const auto& entry : items)
+                    printRow(entry.first, entry.second);
+ 
+                cout << "| ----------------------------------------------------------- |" << endl;
+ 
+                break;
+            }
             case 2://sort by Name
-            cout<<endl;break;
-                    
-            case 3://sort by Quantity
-            cout<<endl;break;
-                    
+            {
+                vector<Entry> items = toEntries(inventory);
+ 
+                quickSort(items, 0, items.size() - 1, 2);
+ 
+                printHeader();
+ 
+                for (const auto& entry : items)
+                    printRow(entry.first, entry.second);
+ 
+                cout << "| ----------------------------------------------------------- |" << endl;
+ 
+                break;
+            }
+            case 3: // sort by Quantity
+            {
+                vector<Entry> items = toEntries(inventory);
+                quickSort(items, 0, items.size() - 1, 3);
+                printHeader();
+                for (const auto& entry : items)
+                printRow(entry.first, entry.second);
+                cout << "| ----------------------------------------------------------- |" << endl;
+                break;
+}
             case 4://Back to Main Menu
-            cout<<endl;return;
-                    
+            return;
             case 0://Exit program
-            cout<<endl<<"[ Exiting BEIAS.. | Thank you for your usage! ] "<<endl;
             exit(0);
         }
     }
@@ -196,40 +168,27 @@ void SortMenu(){
 int main()
 {   
     int MenuInput;
-
     // while loop that encompasses entire program
-        while (true) {
-        cout<<BOLD<<"----------------------------"<<endl<<GREEN<<"|        BEIAS Menu        |"<<RESET<<endl<<"----------------------------"<<endl;
+    while (true) {
+        cout<<"----------------------------"<<endl<<"|        BEIAS Menu        |"<<endl<<"----------------------------"<<endl;
         cout<<"|[1] -- Check Current Inventory"<<endl;
         cout<<"|[2] -- Add Item To Inventory"<<endl;
         cout<<"|[3] -- Search For An Item Within Inventory"<<endl;
-        cout<<"|[4] -- Check Delivery Queue"<<endl;
-        cout<<"|[5] -- Package Management (Returns / Deliveries)"<<endl;
         cout<<"|[0] -- Exit"<<endl;
         cout<<"Select: ";
         // user input
-        cin>>MenuInput;     
+        cin>>MenuInput;
         // switch statement for userinput
         switch (MenuInput)
         {
-        
         case 1: // display inventory case
             DefaultDisplay();
             SortMenu();
             break;
-           
         case 2: // adding item to inventory (placeholder)
-            insertItem();
-            break;
-            
-        // input access to binarysearch
-        case 3: // searching for a certain item in inventory (placeholder)
-            binarySearch();
-            break;
-        case 4: // delivery queue checking and stuff (placeholder)
             cout << "";
             break;
-        case 5: // managing package returns and deliveries!! (placeholder)
+        case 3: // searching for a certain item in inventory (placeholder)
             cout << "";
             break;
         case 0: // exit case
@@ -239,6 +198,6 @@ int main()
         default: // the Default Case
             break;
         }
-    } 
+    }
     return 0;
 }
