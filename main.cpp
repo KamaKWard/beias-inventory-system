@@ -5,6 +5,8 @@
 #include <string>
 #include <queue>
 #include <iomanip>
+#include <sstream>   //EDITED FOR QUEUE DATE SORTING
+#include <ctime>     //EDITED FOR QUEUE DATE SORTING
 using namespace std;
 //-------------------------------------------------------------
 //Text Style Implementation
@@ -128,7 +130,43 @@ void quickSort(vector<Entry>& items, int low, int high, int sortType) {
     // sorting right side
     quickSort(items, pivotIndex + 1, high, sortType);
 }
+//THIS IS FOR DATE sstream and ctime [[PLEASE CHECK BEFORE ADDING STUFF!!!!]]
+bool normalizeDate(const string& input, string& normalized) { //EDITED FOR QUEUE DATE SORTING
+    int year, month, day;
+    char dash1, dash2;
+    string extra;
 
+    istringstream dateStream(input);
+
+    if (!(dateStream >> year >> dash1 >> month >> dash2 >> day) ||
+        dash1 != '-' || dash2 != '-' ||
+        (dateStream >> extra)) {
+        return false;
+    }
+
+    if (year < 1 || month < 1 || month > 12 || day < 1 || day > 31) {
+        return false;
+    }
+    tm dateValue = {};
+    dateValue.tm_year = year - 1900;
+    dateValue.tm_mon = month - 1;
+    dateValue.tm_mday = day;
+    dateValue.tm_hour = 12;
+    mktime(&dateValue);
+    // Reject invalid calendar dates such as February 30.
+    if (dateValue.tm_year != year - 1900 ||
+        dateValue.tm_mon != month - 1 ||
+        dateValue.tm_mday != day) {
+        return false;
+    }
+    ostringstream output;
+    output << setfill('0')
+           << setw(4) << year << '-'
+           << setw(2) << month << '-'
+           << setw(2) << day;
+    normalized = output.str();
+    return true;
+}
 //---------------------------------------------------------------------------------------------------------
 //I think this is good
 void binarySearch() {
@@ -176,6 +214,79 @@ void binarySearch() {
     cout <<RED<< "[Item Code " << target
     << " not found in the inventory.]" <<RESET<< endl<<endl;
     }
+}
+//---------------------------------------------------------------------------------------------------------
+void sortQueueMenu() { //ITS RUDIMENTARY BUT ILL COMBINE THEM SOON
+    int sortChoice;
+
+    cout << endl;
+    cout << "|[1] -- Sort by Oldest" << endl;
+    cout << "|[2] -- Sort by Newest" << endl;
+    cout << "Choice: ";
+
+    cin >> sortChoice;
+
+    if (cin.fail() || (sortChoice != 1 && sortChoice != 2)) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << RED << "[Invalid choice]" << RESET << endl << endl;
+        return;
+    }
+
+    vector<Delivery> sortedDeliveries; //EDITED FOR BINARY SEARCH
+    queue<Delivery> temp = deliveryQueue;
+
+    while (!temp.empty()) {
+        Delivery current = temp.front();
+        temp.pop();
+
+        int left = 0; //EDITED FOR BINARY SEARCH
+        int right = static_cast<int>(sortedDeliveries.size()) - 1;
+        int position = 0;
+
+        // Binary search for the delivery's insertion position.
+        while (left <= right) { //EDITED FOR BINARY SEARCH
+            int mid = left + (right - left) / 2;
+
+            if (sortChoice == 1) {
+                // Oldest first: ascending date order.
+                if (sortedDeliveries[mid].dateOfArrival
+                    <= current.dateOfArrival) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            } else {
+                // Newest first: descending date order.
+                if (sortedDeliveries[mid].dateOfArrival
+                    >= current.dateOfArrival) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+        }
+
+        position = left;
+
+        // Insert the delivery at its calculated position.
+        sortedDeliveries.insert(
+            sortedDeliveries.begin() + position, current
+        ); //EDITED FOR BINARY SEARCH
+    }
+
+    // Replace the actual queue with the sorted deliveries.
+    deliveryQueue = queue<Delivery>(); //EDITED FOR BINARY SEARCH
+
+    for (const Delivery& d : sortedDeliveries) {
+        deliveryQueue.push(d);
+    }
+
+    cout << GREEN
+         << (sortChoice == 1
+             ? "[Queue sorted by oldest arrival date]"
+             : "[Queue sorted by newest arrival date]")
+         << RESET << endl << endl;
 }
 //---------------------------------------------------------------------------------------------------------
 
@@ -338,10 +449,17 @@ void addToQueue() {
     Delivery d;
     d.deliveryID = nextDeliveryID;
 
-    int count;
+    string enteredDate; //date is now properly accounted for
     cout << endl << "Date of Arrival (e.g. 2026-10-15): ";
-    cin >> d.dateOfArrival;
+    cin >> enteredDate;
 
+    if (!normalizeDate(enteredDate, d.dateOfArrival)) { //error handling moved here
+        cout << RED << "[Invalid date, delivery cancelled]"
+             << RESET << endl << endl;
+        return;
+    }
+    
+    int count; //moved
     cout << "How many different items in this delivery? ";
     cin >> count;
 
@@ -349,22 +467,23 @@ void addToQueue() {
     if (cin.fail() || count <= 0) {
         cin.clear();
         cin.ignore(1000, '\n');
-        cout << RED << "[Invalid count, delivery cancelled]" << RESET << endl << endl;
+        cout << RED << "[Invalid count, delivery cancelled]"
+             << RESET << endl << endl;
         return;
     }
 
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++) { //moved
         int code, qty;
         string name;
 
         cout << "Item Code: ";
         cin >> code;
 
-        // error handling
         if (cin.fail()) {
             cin.clear();
             cin.ignore(1000, '\n');
-            cout << RED << "[Invalid code, delivery cancelled]" << RESET << endl << endl;
+            cout << RED << "[Invalid code, delivery cancelled]"
+                 << RESET << endl << endl;
             return;
         }
 
@@ -435,8 +554,9 @@ void deliveryQueueMenu() {
     while (true) {
         displayQueue();
         cout << "|[1] -- Add Delivery To Queue" << endl;
-        cout << "|[2] -- Process Next Delivery (Remove From Front)" << endl;
-        cout << "|[3] -- Back To Main Menu" << endl;
+        cout << "|[2] -- Sort by Date Added" << endl; //sorting it
+        cout << "|[3] -- Process Next Delivery (Remove From Front)" << endl;
+        cout << "|[4] -- Back To Main Menu" << endl;
         cout << "|[0] -- Exit Program" << endl;
         cout << "Choice: ";
 
@@ -444,12 +564,15 @@ void deliveryQueueMenu() {
 
         switch (SecondMenuChoice) {
             case 1: 
-                addToQueue();      
+                addToQueue();   
                 break;
             case 2: 
-                removeFromQueue(); 
+                sortQueueMenu(); //EDITED FOR QUEUE DATE SORTING
                 break;
             case 3: 
+                removeFromQueue(); 
+                break;
+            case 4: 
                 cout << endl; 
                 return;
             case 0:
