@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <queue>
 #include <iomanip>
 using namespace std;
 //-------------------------------------------------------------
@@ -30,7 +31,6 @@ void enableANSI() {} // Not needed on Linux/macOS
 #endif
 //-------------------------------------------------------------
 
-
 // DATA STRUCTURES for Item and Package -Kama
 // item structure
 struct Item {
@@ -38,11 +38,27 @@ struct Item {
     int quantity;
 };
 
+/* makes Entry a readable name so we can just say 
+vector<Entry> without expanding 
+it into vector<pair<int,Item>> */
+using Entry = pair<int, Item>;
+
 //package structure
 struct Package {
     int packageID;
     vector<Item> items;
 };
+
+// delivery structure
+// each item is an Entry (item code + Item) so we know where to put it in the inventory
+struct Delivery {
+    int deliveryID;
+    string dateOfArrival;
+    vector<Entry> items;
+};
+
+queue<Delivery> deliveryQueue;
+int nextDeliveryID = 1;
 
 /* map to link itemCode with Item
 HashMap Index moved out of int main
@@ -55,41 +71,39 @@ map<int, Item> inventory = {
     {5, {"PLUSH OF DOOM", 67}}
 };
 
-/* makes Entry a readable name so we can just say 
-vector<Entry> without expanding 
-it into vector<pair<int,Item>> */
-using Entry = pair<int, Item>;
-
 //makes a snapshot of the map into a vector
 vector<Entry> toEntries(const map<int, Item> &m){
     return vector<Entry>(m.begin(),m.end());
 }
 
-//FUNCTIONS BELOW - 8a
+//declaring them early so i dont go insane -kama
+void loopThroughQueue();
+void addToQueue();
+void removeFromQueue();
+
 // placeholder function to quick sort
 void quickSort(vector<Entry>& items, int low, int high, int sortType) {
     if (low >= high)
         return;
  
-    // Choose the last item as pivot
+    // choose last item as pivot
     Entry pivot = items[high];
- 
     int i = low - 1;
  
     for (int j = low; j < high; j++)
     {
         bool shouldSwap = false;
-        // Sort by Item Code
+        // sort by item code
         if (sortType == 1)
         {
             shouldSwap = items[j].first < pivot.first;
         }
-        // Sort by Item Name
+        // sort by item name
         else if (sortType == 2)
         {
             shouldSwap = items[j].second.itemName < pivot.second.itemName;
         }
-        // Sort by Quantity
+        // sort by quantity
         else if (sortType == 3)
         {
             shouldSwap = items[j].second.quantity < pivot.second.quantity;
@@ -97,16 +111,21 @@ void quickSort(vector<Entry>& items, int low, int high, int sortType) {
         if (shouldSwap)
         {
             i++;
-            swap(items[i], items[j]);
+            Entry temp = items[i];
+            items[i] = items[j];
+            items[j] = temp;
         }
     }
- 
-    // Put pivot in correct position
-    swap(items[i + 1], items[high]);
+
+    // putting pivot in position
+    Entry temp2 = items[i + 1];
+    items[i + 1] = items[high];
+    items[high] = temp2;
     int pivotIndex = i + 1;
-    // Sort left side
+    
+    // sorting left side
     quickSort(items, low, pivotIndex - 1, sortType);
-    // Sort right side
+    // sorting right side
     quickSort(items, pivotIndex + 1, high, sortType);
 }
 
@@ -175,6 +194,7 @@ cout << endl << BOLD<< "| ------------------"<<GREEN<<"| Current Inventory | "<<
 cout << left <<"\033[1G"<< "[Code]"<<"\033[10G"<< "[Item Name]"<<"\033[48G"<< "[Quantity]"<< endl;
 cout << "| ----------------------------------------------------------- |"<<RESET<< endl;
 }
+
 void DefaultDisplay() //Display that shows when no sorting option is picked
 {
 printHeader();
@@ -253,10 +273,199 @@ void SortMenu(){
         }
     }
 }
+
+// idk how to display stuff
+void displayQueue() {
+    cout << endl << BOLD<< "| ------------------"<<GREEN<<"| Current Queue | "<<RESET<<"------------------ |"<< endl;
+    cout << left <<"\033[1G"<< "[Delivery ID]"<<"\033[17G"<< "[Date Of Arrival]"<<"\033[38G"<< "[Items]"<< endl;
+    cout << "| ----------------------------------------------------------- |"<<RESET<< endl;
+    loopThroughQueue();
+    cout << BOLD <<"| ----------------------------------------------------------- |"<< RESET << endl;
+}
+
+// u guys can remove this if u want -kama
+void initializeQueue() {
+
+    // initializes d1
+    Delivery d1;
+    d1.deliveryID = nextDeliveryID++;
+    d1.dateOfArrival = "2026-10-11";
+    d1.items.push_back(make_pair(1, Item{"Uniform", 10}));
+    d1.items.push_back(make_pair(2, Item{"Pants", 5}));
+
+    Delivery d2;
+    d2.deliveryID = nextDeliveryID++;
+    d2.dateOfArrival = "2026-09-13";
+    d2.items.push_back(make_pair(2, Item{"Pants", 11}));
+    d2.items.push_back(make_pair(1, Item{"Uniform", 7}));
+
+    deliveryQueue.push(d1);
+    deliveryQueue.push(d2);
+}
+
+// loops through queue
+void loopThroughQueue() {
+    if (deliveryQueue.empty()) {
+        cout << "  (Queue is empty)" << endl;
+        return;
+    }
+
+    //create copy of the queue with temp
+    queue<Delivery> temp = deliveryQueue;
+
+    //while loop to 
+    while (!temp.empty()) {
+        const Delivery& d = temp.front();
+
+        // printing deliveryID and date of arrival
+        cout << left << "\033[1G" << BLUE << "  " << d.deliveryID << RESET
+            << "\033[17G" << d.dateOfArrival << "\033[38G";
+        
+        // for loop to print items
+        for (size_t i = 0; i < d.items.size(); i++) {
+            cout << d.items[i].second.itemName << " x" << d.items[i].second.quantity;
+            if (i + 1 < d.items.size()) cout << ", ";
+        }
+        cout << endl;
+
+        // pop value after the print to cycle to the next.
+        temp.pop();
+    }
+}
+
+// adds a delivery to the back of the queue
+void addToQueue() {
+    Delivery d;
+    d.deliveryID = nextDeliveryID;
+
+    int count;
+    cout << endl << "Date of Arrival (e.g. 2026-10-15): ";
+    cin >> d.dateOfArrival;
+
+    cout << "How many different items in this delivery? ";
+    cin >> count;
+
+    // error handling
+    if (cin.fail() || count <= 0) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << RED << "[Invalid count, delivery cancelled]" << RESET << endl << endl;
+        return;
+    }
+
+    for (int i = 0; i < count; i++) {
+        int code, qty;
+        string name;
+
+        cout << "Item Code: ";
+        cin >> code;
+
+        // error handling
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << RED << "[Invalid code, delivery cancelled]" << RESET << endl << endl;
+            return;
+        }
+
+        //clears line
+        cin.ignore(1000, '\n');
+
+        // auto is used to determine what type of variable it is
+        auto it = inventory.find(code);
+
+        // conditional block if there is already an existing item under this name within the inventory or if it is unique.
+        if (it != inventory.end()) {
+            name = it->second.itemName;
+            cout << "Item: " << name << endl;
+        } else {
+            cout << "New item code. Item Name: ";
+            getline(cin, name);
+        }
+
+        // quantity of item
+        cout << "Quantity: ";
+        cin >> qty;
+
+        // error handling
+        if (cin.fail() || qty <= 0) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << RED << "[Invalid quantity, delivery cancelled]" << RESET << endl << endl;
+            return;
+        }
+
+        // adds another element to end of the container
+        d.items.push_back(make_pair(code, Item{name, qty}));
+    }
+
+    nextDeliveryID++;
+    deliveryQueue.push(d);
+    cout << GREEN << "[Delivery #" << d.deliveryID << " added to queue]" << RESET << endl << endl;
+
+}
+
+// removes the delivery at the very front of the queue
+void removeFromQueue() {
+
+    // error handling just in case the queue is empty
+    if (deliveryQueue.empty()) {
+        cout << RED << "[Queue is empty, nothing to process]" << RESET << endl << endl;
+        return;
+    }
+
+    // oldest delivery, adding of items to inventory from delivery
+    Delivery d = deliveryQueue.front();                  // oldest delivery
+    for (const Entry& e : d.items) {
+        auto it = inventory.find(e.first);
+
+        // conditional block if adding quantity to pre-existing item, else makes a new entry for a unique one
+        if (it != inventory.end()) it->second.quantity += e.second.quantity;
+        else inventory[e.first] = e.second;              
+    }
+
+    // remove from front 
+    deliveryQueue.pop();
+    cout << GREEN << "[Delivery #" << d.deliveryID << " processed. Inventory updated]"
+        << RESET << endl << endl;
+}
+
+void deliveryQueueMenu() {
+    int SecondMenuChoice;
+    while (true) {
+        displayQueue();
+        cout << "|[1] -- Add Delivery To Queue" << endl;
+        cout << "|[2] -- Process Next Delivery (Remove From Front)" << endl;
+        cout << "|[3] -- Back To Main Menu" << endl;
+        cout << "|[0] -- Exit Program" << endl;
+        cout << "Choice: ";
+
+        cin >> SecondMenuChoice;
+
+        switch (SecondMenuChoice) {
+            case 1: 
+                addToQueue();      
+                break;
+            case 2: 
+                removeFromQueue(); 
+                break;
+            case 3: 
+                cout << endl; 
+                return;
+            case 0:
+                cout << endl << "[ Exiting BEIAS.. | Thank you for your usage! ] " << endl;
+                exit(0);
+            default:
+                cout << RED << "[Invalid choice]" << RESET << endl << endl;
+        }
+    }
+}
+
 // main method
 int main()
 {   
     int MenuInput;
+    initializeQueue();
 
     // while loop that encompasses entire program
         while (true) {
@@ -278,7 +487,6 @@ int main()
             DefaultDisplay();
             SortMenu();
             break;
-           
         case 2: // adding item to inventory (placeholder)
             insertItem();
             break;
@@ -289,6 +497,7 @@ int main()
             break;
         case 4: // delivery queue checking and stuff (placeholder)
             cout << "";
+            deliveryQueueMenu();
             break;
         case 5: // managing package returns and deliveries!! (placeholder)
             cout << "";
