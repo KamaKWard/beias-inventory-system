@@ -216,7 +216,7 @@ void binarySearch() {
     }
 }
 //---------------------------------------------------------------------------------------------------------
-void sortQueueMenu() { //ITS RUDIMENTARY BUT ILL COMBINE THEM SOON
+void sortQueueMenu() {
     int sortChoice;
 
     cout << endl;
@@ -225,7 +225,8 @@ void sortQueueMenu() { //ITS RUDIMENTARY BUT ILL COMBINE THEM SOON
     cout << "Choice: ";
 
     cin >> sortChoice;
-
+    
+    //Response if input is invalid or not
     if (cin.fail() || (sortChoice != 1 && sortChoice != 2)) {
         cin.clear();
         cin.ignore(1000, '\n');
@@ -233,50 +234,72 @@ void sortQueueMenu() { //ITS RUDIMENTARY BUT ILL COMBINE THEM SOON
         return;
     }
 
-    vector<Delivery> sortedDeliveries; //EDITED FOR BINARY SEARCH
+    vector<Delivery> sortedDeliveries;
     queue<Delivery> temp = deliveryQueue;
 
+    //This copies the deliveries from the queue into a vector.
     while (!temp.empty()) {
-        Delivery current = temp.front();
+        sortedDeliveries.push_back(temp.front());
         temp.pop();
+    }
 
-        int left = 0; //EDITED FOR BINARY SEARCH
-        int right = static_cast<int>(sortedDeliveries.size()) - 1;
-        int position = 0;
+    //Quick Sort using dateOfArrival as the sorting key.
+    //Choice 1: The Oldest will be first (ascending).
+    //Choice 2: The Newest will be first (descending).
+    int sortType = sortChoice;
 
-        // Binary search for the delivery's insertion position.
-        while (left <= right) { //EDITED FOR BINARY SEARCH
-            int mid = left + (right - left) / 2;
+    auto quickSortDeliveries = [&](auto&& self, int low, int high) -> void {
+        if (low >= high)
+            return;
 
-            if (sortChoice == 1) {
-                // Oldest first: ascending date order.
-                if (sortedDeliveries[mid].dateOfArrival
-                    <= current.dateOfArrival) {
-                    left = mid + 1;
-                } else {
-                    right = mid - 1;
-                }
+        //Chooses the last delivery as the pivot.
+        Delivery pivot = sortedDeliveries[high];
+        int i = low - 1;
+
+        for (int j = low; j < high; j++) {
+            bool shouldSwap = false;
+
+            if (sortType == 1) {
+                //Oldest first.
+                shouldSwap =
+                    sortedDeliveries[j].dateOfArrival
+                    < pivot.dateOfArrival;
             } else {
-                // Newest first: descending date order.
-                if (sortedDeliveries[mid].dateOfArrival
-                    >= current.dateOfArrival) {
-                    left = mid + 1;
-                } else {
-                    right = mid - 1;
-                }
+                //Newest first.
+                shouldSwap =
+                    sortedDeliveries[j].dateOfArrival
+                    > pivot.dateOfArrival;
+            }
+
+            if (shouldSwap) {
+                i++;
+                Delivery tempDelivery = sortedDeliveries[i];
+                sortedDeliveries[i] = sortedDeliveries[j];
+                sortedDeliveries[j] = tempDelivery;
             }
         }
 
-        position = left;
+        //Places the pivot in its correct position.
+        Delivery tempDelivery = sortedDeliveries[i + 1];
+        sortedDeliveries[i + 1] = sortedDeliveries[high];
+        sortedDeliveries[high] = tempDelivery;
 
-        // Insert the delivery at its calculated position.
-        sortedDeliveries.insert(
-            sortedDeliveries.begin() + position, current
-        ); //EDITED FOR BINARY SEARCH
-    }
+        int pivotIndex = i + 1;
 
-    // Replace the actual queue with the sorted deliveries.
-    deliveryQueue = queue<Delivery>(); //EDITED FOR BINARY SEARCH
+        //Sorts the left and right partitions.
+        self(self, low, pivotIndex - 1);
+        self(self, pivotIndex + 1, high);
+    };
+
+    //Executes Quick Sort.
+    quickSortDeliveries(
+        quickSortDeliveries,
+        0,
+        static_cast<int>(sortedDeliveries.size()) - 1
+    );
+
+    //Replaces the original queue with the sorted deliveries.
+    deliveryQueue = queue<Delivery>();
 
     for (const Delivery& d : sortedDeliveries) {
         deliveryQueue.push(d);
@@ -594,7 +617,6 @@ int main()
         while (true) {
         cout<<BOLD<<"----------------------------"<<endl<<GREEN<<"|        BEIAS Menu        |"<<RESET<<endl<<"----------------------------"<<endl;
         cout<<"|[1] -- Check Current Inventory"<<endl;
-        cout<<"|[2] -- Add Item To Inventory"<<endl;
         cout<<"|[3] -- Search For An Item Within Inventory"<<endl;
         cout<<"|[4] -- Check Delivery Queue"<<endl;
         cout<<"|[5] -- Package Management (Returns / Deliveries)"<<endl;
