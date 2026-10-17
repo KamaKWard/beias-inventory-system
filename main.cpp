@@ -83,53 +83,6 @@ void loopThroughQueue();
 void addToQueue();
 void removeFromQueue();
 
-// placeholder function to quick sort
-void quickSort(vector<Entry>& items, int low, int high, int sortType) {
-    if (low >= high)
-        return;
- 
-    // choose last item as pivot
-    Entry pivot = items[high];
-    int i = low - 1;
- 
-    for (int j = low; j < high; j++)
-    {
-        bool shouldSwap = false;
-        // sort by item code
-        if (sortType == 1)
-        {
-            shouldSwap = items[j].first < pivot.first;
-        }
-        // sort by item name
-        else if (sortType == 2)
-        {
-            shouldSwap = items[j].second.itemName < pivot.second.itemName;
-        }
-        // sort by quantity
-        else if (sortType == 3)
-        {
-            shouldSwap = items[j].second.quantity < pivot.second.quantity;
-        }
-        if (shouldSwap)
-        {
-            i++;
-            Entry temp = items[i];
-            items[i] = items[j];
-            items[j] = temp;
-        }
-    }
-
-    // putting pivot in position
-    Entry temp2 = items[i + 1];
-    items[i + 1] = items[high];
-    items[high] = temp2;
-    int pivotIndex = i + 1;
-    
-    // sorting left side
-    quickSort(items, low, pivotIndex - 1, sortType);
-    // sorting right side
-    quickSort(items, pivotIndex + 1, high, sortType);
-}
 //THIS IS FOR DATE sstream and ctime [[PLEASE CHECK BEFORE ADDING STUFF!!!!]]
 bool normalizeDate(const string& input, string& normalized) { //EDITED FOR QUEUE DATE SORTING
     int year, month, day;
@@ -168,7 +121,7 @@ bool normalizeDate(const string& input, string& normalized) { //EDITED FOR QUEUE
     return true;
 }
 //---------------------------------------------------------------------------------------------------------
-//I think this is good
+//BINARY SEARCH FEATURE
 void binarySearch() {
     // Make a temporary vector from the inventory map
     vector<Entry> arr = toEntries(inventory);
@@ -216,6 +169,67 @@ void binarySearch() {
     }
 }
 //---------------------------------------------------------------------------------------------------------
+//QUICKSORT QUICKSORT
+void quickSort(vector<Entry>& items, int low, int high, int sortType) {
+    if (low >= high)
+        return;
+ 
+    // choose last item as pivot
+    Entry pivot = items[high];
+    int i = low - 1;
+ 
+    for (int j = low; j < high; j++)
+    {
+        bool shouldSwap = false;
+        // sort by item code
+        if (sortType == 1)
+        {
+            shouldSwap = items[j].first < pivot.first;
+        }
+        // sort by item name
+        else if (sortType == 2)
+        {
+            shouldSwap = items[j].second.itemName < pivot.second.itemName;
+        }
+        // sort by quantity
+        else if (sortType == 3)
+        {
+            shouldSwap = items[j].second.quantity < pivot.second.quantity;
+        }
+        //sort by oldest
+        else if (sortType == 4)
+        {
+            shouldSwap = items[j].second.itemName < pivot.second.itemName ||
+                        (items[j].second.itemName == pivot.second.itemName &&
+                         items[j].first < pivot.first);
+        }
+        //sort by newest
+        else if (sortType == 5)
+        {
+            shouldSwap = items[j].second.itemName > pivot.second.itemName ||
+                        (items[j].second.itemName == pivot.second.itemName &&
+                         items[j].first < pivot.first);
+        }
+        if (shouldSwap)
+        {
+            i++;
+            Entry temp = items[i];
+            items[i] = items[j];
+            items[j] = temp;
+        }
+    }
+
+    // putting pivot in position
+    Entry temp2 = items[i + 1];
+    items[i + 1] = items[high];
+    items[high] = temp2;
+    int pivotIndex = i + 1;
+    
+    // sorting left side
+    quickSort(items, low, pivotIndex - 1, sortType);
+    // sorting right side
+    quickSort(items, pivotIndex + 1, high, sortType);
+}
 void sortQueueMenu() {
     int sortChoice;
 
@@ -225,8 +239,7 @@ void sortQueueMenu() {
     cout << "Choice: ";
 
     cin >> sortChoice;
-    
-    //Response if input is invalid or not
+
     if (cin.fail() || (sortChoice != 1 && sortChoice != 2)) {
         cin.clear();
         cin.ignore(1000, '\n');
@@ -234,75 +247,28 @@ void sortQueueMenu() {
         return;
     }
 
-    vector<Delivery> sortedDeliveries;
+    //synced to work with entry and delivery, queue and quicksort and communicate
+    // Queue to sort reEnt (Entry), keep full deliveries in a lookup map
+    vector<Entry> reEnt;
+    map<int, Delivery> byID;
     queue<Delivery> temp = deliveryQueue;
 
-    //This copies the deliveries from the queue into a vector.
     while (!temp.empty()) {
-        sortedDeliveries.push_back(temp.front());
+        Delivery d = temp.front();
         temp.pop();
+        reEnt.push_back(make_pair(d.deliveryID, Item{d.dateOfArrival, 0}));
+        byID[d.deliveryID] = d;
     }
 
-    //Quick Sort using dateOfArrival as the sorting key.
-    //Choice 1: The Oldest will be first (ascending).
-    //Choice 2: The Newest will be first (descending).
-    int sortType = sortChoice;
+    // the one and only quickSort 4 = oldest first, 5 = newest first
+    //basically reEnt or records list, find last item position through sort method 4 5
+    quickSort(reEnt, 0, static_cast<int>(reEnt.size()) - 1,
+              sortChoice == 1 ? 4 : 5);
 
-    auto quickSortDeliveries = [&](auto&& self, int low, int high) -> void {
-        if (low >= high)
-            return;
-
-        //Chooses the last delivery as the pivot.
-        Delivery pivot = sortedDeliveries[high];
-        int i = low - 1;
-
-        for (int j = low; j < high; j++) {
-            bool shouldSwap = false;
-
-            if (sortType == 1) {
-                //Oldest first.
-                shouldSwap =
-                    sortedDeliveries[j].dateOfArrival
-                    < pivot.dateOfArrival;
-            } else {
-                //Newest first.
-                shouldSwap =
-                    sortedDeliveries[j].dateOfArrival
-                    > pivot.dateOfArrival;
-            }
-
-            if (shouldSwap) {
-                i++;
-                Delivery tempDelivery = sortedDeliveries[i];
-                sortedDeliveries[i] = sortedDeliveries[j];
-                sortedDeliveries[j] = tempDelivery;
-            }
-        }
-
-        //Places the pivot in its correct position.
-        Delivery tempDelivery = sortedDeliveries[i + 1];
-        sortedDeliveries[i + 1] = sortedDeliveries[high];
-        sortedDeliveries[high] = tempDelivery;
-
-        int pivotIndex = i + 1;
-
-        //Sorts the left and right partitions.
-        self(self, low, pivotIndex - 1);
-        self(self, pivotIndex + 1, high);
-    };
-
-    //Executes Quick Sort.
-    quickSortDeliveries(
-        quickSortDeliveries,
-        0,
-        static_cast<int>(sortedDeliveries.size()) - 1
-    );
-
-    //Replaces the original queue with the sorted deliveries.
+    //Sorted reEnt then rebuild queue, sort done
     deliveryQueue = queue<Delivery>();
-
-    for (const Delivery& d : sortedDeliveries) {
-        deliveryQueue.push(d);
+    for (const Entry& r : reEnt) {
+        deliveryQueue.push(byID[r.first]);
     }
 
     cout << GREEN
@@ -617,6 +583,7 @@ int main()
         while (true) {
         cout<<BOLD<<"----------------------------"<<endl<<GREEN<<"|        BEIAS Menu        |"<<RESET<<endl<<"----------------------------"<<endl;
         cout<<"|[1] -- Check Current Inventory"<<endl;
+        cout<<"|[2] -- Add Item To Inventory"<<endl;
         cout<<"|[3] -- Search For An Item Within Inventory"<<endl;
         cout<<"|[4] -- Check Delivery Queue"<<endl;
         cout<<"|[5] -- Package Management (Returns / Deliveries)"<<endl;
